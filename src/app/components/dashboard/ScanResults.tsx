@@ -1,7 +1,7 @@
 // components/dashboard/ScanResults.tsx
 'use client';
 
-import { Shield, AlertCircle, Clock } from 'lucide-react';
+import { Shield, AlertCircle, Clock, Loader2 } from 'lucide-react';
 
 interface ScanResult {
   status: string;
@@ -27,15 +27,51 @@ interface ScanResult {
 }
 
 interface ScanResultsProps {
-  result: ScanResult;
+  result?: ScanResult | null;
   fileName: string;
+  status?: string; // Added for pending states
 }
 
-export default function ScanResults({ result, fileName }: ScanResultsProps) {
-  // Calculate the total engines
+export default function ScanResults({ result, fileName, status = 'PENDING' }: ScanResultsProps) {
+  if (!result) {
+    return (
+      <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-2">{fileName}</h2>
+              <p className="text-sm text-gray-400">Scan {status.toLowerCase()}</p>
+            </div>
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50">
+              {status === 'PENDING' || status === 'SCANNING' ? (
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              ) : (
+                <AlertCircle className="w-8 h-8 text-yellow-500" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-12 flex flex-col items-center justify-center">
+          {status === 'PENDING' || status === 'SCANNING' ? (
+            <>
+              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+              <p className="text-gray-400 text-lg">
+                {status === 'PENDING' ? 'Starting scan...' : 'Scanning in progress...'}
+              </p>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="w-12 h-12 text-yellow-500 mb-4" />
+              <p className="text-gray-400 text-lg">No scan results available</p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   const totalEngines = Object.keys(result.results).length;
-  
-  // Get detection score
   const detectionScore = result.stats.malicious;
   
   const getScoreColor = (score: number) => {
@@ -58,7 +94,10 @@ export default function ScanResults({ result, fileName }: ScanResultsProps) {
           <div>
             <h2 className="text-xl font-semibold text-white mb-2">{fileName}</h2>
             <p className="text-sm text-gray-400">
-              {result.meta?.file_info.size ? `${(result.meta.file_info.size / 1024).toFixed(2)} KB` : 'Size unknown'}
+              {result.meta?.file_info.size 
+                ? `${(result.meta.file_info.size / 1024).toFixed(2)} KB` 
+                : 'Size unknown'
+              }
             </p>
           </div>
           <div className={`flex items-center justify-center w-16 h-16 rounded-full ${getScoreBackground(detectionScore)}`}>
