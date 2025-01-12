@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield Outer Shape -->
+  <path d="M32 4L8 14v18c0 16.2 10.3 31.2 24 36 13.7-4.8 24-19.8 24-36V14L32 4z" 
+        fill="none" 
+        stroke="currentColor" 
+        stroke-width="4"
+        stroke-linejoin="round"/>
+  
+  <!-- Inner Triangle (Vercel-inspired) -->
+  <path d="M32 20L22 38h20L32 20z" 
+        fill="currentColor"/>
+</svg>
