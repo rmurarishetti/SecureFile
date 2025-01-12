@@ -3,21 +3,43 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Upload, History, LogOut } from 'lucide-react';
+import { Upload, History, LogOut, User } from 'lucide-react';
 import Logo from '../Logo';
+import type { User as PrismaUser } from '@prisma/client';
+
+interface SidebarProps {
+  user: PrismaUser;
+}
 
 const navItems = [
   { href: '/dashboard', label: 'Upload File', icon: Upload },
   { href: '/dashboard/history', label: 'Scan History', icon: History },
 ];
 
-export default function DashboardSidebar() {
+export default function DashboardSidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-black/40 backdrop-blur-xl border-r border-gray-800">
       <div className="h-16 flex items-center px-6 border-b border-gray-800">
         <Logo />
+      </div>
+      
+      {/* User Info */}
+      <div className="px-6 py-4 border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+            <User className="w-4 h-4 text-gray-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">
+              {user.name || 'User'}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {user.email}
+            </p>
+          </div>
+        </div>
       </div>
       
       <nav className="mt-6">
