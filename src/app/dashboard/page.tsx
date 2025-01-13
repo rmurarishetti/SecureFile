@@ -1,5 +1,4 @@
 // app/dashboard/page.tsx
-import { cookies } from 'next/headers';
 import { getSession } from '@auth0/nextjs-auth0';
 import FileUpload from "@/app/components/dashboard/FileUpload";
 import { getUserByEmail, getUserStats } from '../../../lib/services/user';

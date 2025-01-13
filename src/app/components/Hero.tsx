@@ -26,7 +26,7 @@ const Hero = () => {
           Your complete platform for secure file scanning.
         </h1>
         <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-          Upload and scan your files securely using VirusTotal's powerful API. 
+          Upload and scan your files securely using VirusTotal&apos;s powerful API. 
           Build with confidence knowing your files are safe.
         </p>
         

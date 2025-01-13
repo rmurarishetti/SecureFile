@@ -1,9 +1,7 @@
 // app/dashboard/history/page.tsx
-import { cookies } from 'next/headers';
 import { getSession } from '@auth0/nextjs-auth0';
 import ScanHistory from '@/app/components/dashboard/ScanHistory';
 import { redirect } from 'next/navigation';
-import { getUserFiles, getUserByEmail } from '../../../../lib/services/user';
 import { prisma } from '../../../../lib/prisma';
 import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
 

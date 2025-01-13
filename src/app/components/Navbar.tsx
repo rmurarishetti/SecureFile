@@ -18,7 +18,6 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-    const currentRoute = usePathname();
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {

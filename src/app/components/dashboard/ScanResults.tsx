@@ -1,7 +1,7 @@
 // components/dashboard/ScanResults.tsx
 'use client';
 
-import { Shield, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 
 interface ScanResultsProps {
@@ -120,7 +120,7 @@ export default function ScanResults({
 
       {/* Scan Details */}
       <div className="p-6">
-        <h3 className="text-lg font-medium text-white mb-4">Security Vendors' Analysis</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Security Vendors&apos; Analysis</h3>
         <div className="grid grid-cols-2 gap-4">
           {Object.entries(virusTotalData.attributes.results).map(([key, value]: [string, any]) => (
             <div key={key} className="flex items-center justify-between p-3 bg-black/30 rounded-lg">
