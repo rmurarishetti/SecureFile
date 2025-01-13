@@ -51,17 +51,18 @@ async function getScanDetails(id: string) {
 }
 
 export default async function ScanPage({
-  params
+  params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const session = await getSession();
+  const id = (await params).id;
   
   if (!session?.user?.email) {
     notFound();
   }
 
-  const data = await getScanDetails(params.id);
+  const data = await getScanDetails(id);
   
   if (!data) {
     notFound();

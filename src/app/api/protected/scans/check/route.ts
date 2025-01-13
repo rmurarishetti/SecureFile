@@ -1,13 +1,10 @@
-// app/api/protected/scans/[id]/check/route.ts
+// app/api/scans/check/route.ts
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
-import { prisma } from '../../../../../../../lib/prisma';
-import { virusTotal } from '../../../../../../../lib/services/virustotal';
+import { virusTotal } from '../../../../../../lib/services/virustotal';
+import { prisma } from '../../../../../../lib/prisma';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
     const session = await getSession();
     if (!session?.user?.email) {
@@ -16,26 +13,33 @@ export async function GET(
 
     const { searchParams } = new URL(request.url);
     const vtScanId = searchParams.get('vtScanId');
+    const dbId = searchParams.get('dbId');
 
-    if (!vtScanId) {
+    if (!vtScanId || !dbId) {
       return NextResponse.json({ error: 'Missing scan ID' }, { status: 400 });
     }
 
-    // Get VirusTotal analysis results
-    const vtAnalysis = await virusTotal.getAnalysis(vtScanId);
+    // Get analysis from VirusTotal using the vtScanId
+    const analysis = await virusTotal.getAnalysis(vtScanId);
 
     // If analysis is completed, update our database
-    if (vtAnalysis.data.attributes.status === 'completed') {
+    if (analysis.data.attributes.status === 'completed') {
       await prisma.fileScan.update({
-        where: { id: params.id },
+        where: { id: dbId },
         data: { status: 'COMPLETED' }
       });
 
-      return NextResponse.json({ status: 'COMPLETED', data: vtAnalysis.data });
+      return NextResponse.json({ 
+        status: 'COMPLETED', 
+        data: analysis.data 
+      });
     }
 
     // Return current status
-    return NextResponse.json({ status: 'PENDING', data: vtAnalysis.data });
+    return NextResponse.json({ 
+      status: 'PENDING', 
+      data: analysis.data 
+    });
   } catch (error) {
     console.error('Error checking scan status:', error);
     return NextResponse.json(

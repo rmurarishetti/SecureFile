@@ -1,13 +1,10 @@
-// app/api/protected/scans/[scanId]/analysis/route.ts
+// app/api/scans/analysis/route.ts
 import { NextResponse } from 'next/server';
 import { getSession } from '@auth0/nextjs-auth0';
-import { virusTotal } from '../../../../../../../lib/services/virustotal';
-import { prisma } from '../../../../../../../lib/prisma';
+import { virusTotal } from '../../../../../../lib/services/virustotal';
+import { prisma } from '../../../../../../lib/prisma';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { scanId: string } }
-) {
+export async function GET(request: Request) {
   try {
     const session = await getSession();
     if (!session?.user?.email) {
@@ -17,10 +14,21 @@ export async function GET(
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const scanId = searchParams.get('scanId');
+    const dbId = searchParams.get('dbId');
+
+    if (!scanId || !dbId) {
+      return NextResponse.json(
+        { error: 'Missing scan ID or database ID' },
+        { status: 400 }
+      );
+    }
+
     // Get scan record using scanId
     const scan = await prisma.fileScan.findFirst({
       where: {
-        scanId: params.scanId,
+        scanId: scanId,
         user: {
           email: session.user.email
         }
@@ -35,12 +43,12 @@ export async function GET(
     }
 
     // Get analysis from VirusTotal using the scanId directly
-    const analysis = await virusTotal.getAnalysis(params.scanId);
+    const analysis = await virusTotal.getAnalysis(scanId);
 
     // If analysis is completed, update scan status
     if (analysis.data.attributes.status === 'completed') {
       await prisma.fileScan.update({
-        where: { id: scan.id },
+        where: { id: dbId },
         data: {
           status: 'COMPLETED'
         }
