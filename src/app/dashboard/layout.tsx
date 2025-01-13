@@ -60,7 +60,7 @@ export default async function DashboardLayout({
 
       {/* Content */}
       <div className="relative flex h-screen">
-        <DashboardSidebar user={user} />
+        <DashboardSidebar name={session.user.name} email={session.user.email} />
         <main className="flex-1 pl-64 overflow-auto">
           <div className="px-8 py-6">
             {children}

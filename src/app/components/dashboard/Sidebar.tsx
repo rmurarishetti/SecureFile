@@ -5,18 +5,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Upload, History, LogOut, User } from 'lucide-react';
 import Logo from '../Logo';
-import type { User as PrismaUser } from '@prisma/client';
-
-interface SidebarProps {
-  user: PrismaUser;
-}
 
 const navItems = [
   { href: '/dashboard', label: 'Upload File', icon: Upload },
   { href: '/dashboard/history', label: 'Scan History', icon: History },
 ];
 
-export default function DashboardSidebar({ user }: SidebarProps) {
+interface SidebarProps {
+  name:string;
+  email:string;
+}
+
+export default function DashboardSidebar({ name, email }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -33,10 +33,10 @@ export default function DashboardSidebar({ user }: SidebarProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-white truncate">
-              {user.name || 'User'}
+              {name || 'User'}
             </p>
             <p className="text-xs text-gray-400 truncate">
-              {user.email}
+              {email}
             </p>
           </div>
         </div>
