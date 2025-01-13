@@ -1,65 +1,76 @@
 // app/dashboard/test/page.tsx
-import ScanResults from '@/app/components/dashboard/ScanResults';
+'use client';
 
-const testResult = {
-  "status": "completed",
-  "stats": {
-    "malicious": 1,
-    "suspicious": 1,
-    "undetected": 66,
-    "harmless": 0
-  },
-  "results": {
-    "Bitdefender": {
-      "category": "undetected",
-      "engine_name": "Bitdefender",
-      "result": null
-    },
-    "Kaspersky": {
-      "category": "undetected",
-      "engine_name": "Kaspersky",
-      "result": null
-    },
-    "McAfee": {
-      "category": "undetected",
-      "engine_name": "McAfee",
-      "result": null
-    },
-    "CrowdStrike": {
-      "category": "malicious",
-      "engine_name": "CrowdStrike Falcon",
-      "result": "malicious"
-    },
-    "Symantec": {
-      "category": "suspicious",
-      "engine_name": "Symantec",
-      "result": "suspicious"
-    }
-  },
-  "meta": {
-    "file_info": {
-      "size": 13946,
-      "md5": "e7a3021779ce48df7fc34995f9d71e04",
-      "sha1": "2796c923c381271cabc06cfcf217c5e435deda55",
-      "sha256": "ff4e79f9b32eca0beabcc376f07723815d8c8ff06832f067f3445f7f871c54c9"
-    }
-  }
-};
+import { useState, useEffect } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export default function TestPage() {
-  return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Test Scan Results</h1>
-        <p className="mt-1 text-gray-400">
-          Sample scan result display
-        </p>
-      </div>
+  const { user, isLoading } = useUser();
+  const [testData, setTestData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-      <ScanResults 
-        result={testResult}
-        fileName="test-malicious-file.exe"
-      />
+  useEffect(() => {
+    async function fetchTestData() {
+      try {
+        const response = await fetch('/api/test');
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Test failed');
+        }
+        
+        setTestData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong');
+      }
+    }
+
+    if (user) {
+      fetchTestData();
+    }
+  }, [user]);
+
+  if (isLoading) {
+    return <div className="p-4 text-white">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold text-white mb-6">Auth Test Page</h1>
+      
+      <div className="space-y-6">
+        {/* Auth0 Session */}
+        <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800 p-4">
+          <h2 className="text-xl font-semibold text-white mb-3">Auth0 Session</h2>
+          <pre className="text-gray-300 overflow-auto">
+            {JSON.stringify(user, null, 2)}
+          </pre>
+        </div>
+
+        {/* Database User */}
+        {testData?.user && (
+          <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800 p-4">
+            <h2 className="text-xl font-semibold text-white mb-3">Database User</h2>
+            <pre className="text-gray-300 overflow-auto">
+              {JSON.stringify(testData.user, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {/* User Files */}
+        {testData?.files && (
+          <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800 p-4">
+            <h2 className="text-xl font-semibold text-white mb-3">User Files</h2>
+            <pre className="text-gray-300 overflow-auto">
+              {JSON.stringify(testData.files, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
