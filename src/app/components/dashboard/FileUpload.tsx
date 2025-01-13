@@ -5,11 +5,7 @@ import { useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface FileUploadProps {
-  userEmail?: string | null;
-}
-
-export default function FileUpload({ userEmail }: FileUploadProps) {
+export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -50,7 +46,7 @@ export default function FileUpload({ userEmail }: FileUploadProps) {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !userEmail) return;
+    if (!selectedFile) return;
 
     try {
       setIsUploading(true);
@@ -58,9 +54,8 @@ export default function FileUpload({ userEmail }: FileUploadProps) {
 
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('userEmail', userEmail);
 
-      const response = await fetch('/api/protected/scan', {
+      const response = await fetch('/api/protected/upload', {
         method: 'POST',
         body: formData,
       });
@@ -71,8 +66,10 @@ export default function FileUpload({ userEmail }: FileUploadProps) {
       }
 
       const data = await response.json();
+      
+      // Redirect to scan page
       router.push(`/dashboard/scans/${data.scanId}`);
-      router.refresh(); // Refresh the page to update stats
+      router.refresh();
     } catch (err) {
       console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Failed to upload file');
@@ -138,7 +135,7 @@ export default function FileUpload({ userEmail }: FileUploadProps) {
                 {isUploading ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Scanning...
+                    Uploading...
                   </>
                 ) : (
                   'Start Scan'

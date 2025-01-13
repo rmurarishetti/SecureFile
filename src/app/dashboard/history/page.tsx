@@ -3,25 +3,21 @@ import { cookies } from 'next/headers';
 import { getSession } from '@auth0/nextjs-auth0';
 import ScanHistory from '@/app/components/dashboard/ScanHistory';
 import { redirect } from 'next/navigation';
-import { getUserFiles, getUserByEmail } from '../../../../lib/services/user'
+import { getUserFiles, getUserByEmail } from '../../../../lib/services/user';
+import { prisma } from '../../../../lib/prisma';
+import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
 
-async function getScans(email: string) {
+async function getScans(userId: string) {
   try {
-    // First get the user from database
-    const user = await getUserByEmail(email);
-    if (!user) {
-      console.error('User not found:', email);
-      return { scans: [], totalPages: 0 };
-    }
-
-    // Then get their files using the database ID
-    const { files, total, pages } = await getUserFiles(user.id);
-    
-    console.log('Found scans:', files.length); // Debug log
+    const scans = await prisma.fileScan.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    });
     
     return {
-      scans: files,
-      totalPages: pages
+      scans,
+      totalPages: 1 // Add pagination later
     };
   } catch (error) {
     console.error('Error fetching scans:', error);
@@ -36,23 +32,40 @@ export default async function HistoryPage() {
     redirect('/api/auth/login');
   }
 
-  const { scans, totalPages } = await getScans(session.user.email);
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email }
+  });
 
-  // Debug log
-  console.log('Rendering history page with scans:', scans?.length);
+  if (!user) {
+    redirect('/api/auth/login');
+  }
+
+  const { scans, totalPages } = await getScans(user.id);
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Scan History</h1>
         <p className="mt-1 text-gray-400">
-          View and manage your previous file scans.
+          View and manage your previous file scans
         </p>
       </div>
 
       <div className="mt-6">
-        <ScanHistory initialScans={scans || []} totalPages={totalPages} />
+        <ScanHistory initialScans={scans} totalPages={totalPages} />
       </div>
+
+      {/* Add status checkers for pending scans */}
+      {scans.map(scan => 
+        scan.status === 'PENDING' && scan.scanId ? (
+          <ScanStatusChecker 
+            key={scan.id}
+            dbId={scan.id}
+            scanId={scan.scanId}
+            status={scan.status}
+          />
+        ) : null
+      )}
     </div>
   );
 }

@@ -1,38 +1,55 @@
 // app/dashboard/layout.tsx
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { getSession } from '@auth0/nextjs-auth0';
-import DashboardSidebar from '../components/dashboard/Sidebar';
-import { getUserByEmail } from '../../../lib/services/user';
+import { prisma } from '../../../lib/prisma';
+import DashboardSidebar from '@/app/components/dashboard/Sidebar';
+
+async function getOrCreateUser(email: string, name?: string | null) {
+  try {
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {
+        name: name || undefined,
+      },
+      create: {
+        email,
+        name: name || undefined,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error('Error upserting user:', error);
+    return null;
+  }
+}
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   const session = await getSession();
-
-  if (!session?.user) {
+  
+  if (!session?.user?.email) {
     redirect('/api/auth/login');
   }
 
-  // Get user data from our database
-  const user = await getUserByEmail(session.user.email as string);
-
+  // Get or create user in database
+  const user = await getOrCreateUser(session.user.email, session.user.name);
+  
   if (!user) {
-    console.error('User not found in database');
-    redirect('/api/auth/login');
+    console.error('Failed to create/fetch user');
+    redirect('/');
   }
 
   return (
     <div className="relative min-h-screen bg-black">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div
+        <div 
           className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:4rem_4rem]"
         />
-        <div
+        <div 
           className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-red-500/10"
           style={{
             maskImage: 'radial-gradient(circle at center, white, transparent)',

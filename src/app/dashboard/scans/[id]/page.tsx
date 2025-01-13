@@ -1,57 +1,14 @@
 // app/dashboard/scans/[id]/page.tsx
 import { notFound } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { getSession } from '@auth0/nextjs-auth0';
 import ScanResults from '@/app/components/dashboard/ScanResults';
 import { prisma } from '../../../../../lib/prisma';
-
-// Mock VirusTotal response for now
-const mockVirusTotalResponse = {
-  data: {
-    attributes: {
-      status: "completed",
-      stats: {
-        malicious: 0,
-        suspicious: 0,
-        undetected: 66,
-        harmless: 0
-      },
-      results: {
-        "Kaspersky": {
-          "category": "undetected",
-          "engine_name": "Kaspersky",
-          "result": null
-        },
-        "McAfee": {
-          "category": "undetected",
-          "engine_name": "McAfee",
-          "result": null
-        },
-        "CrowdStrike": {
-          "category": "undetected",
-          "engine_name": "CrowdStrike Falcon",
-          "result": null
-        },
-        "Symantec": {
-          "category": "undetected",
-          "engine_name": "Symantec",
-          "result": null
-        },
-      }
-    },
-    meta: {
-      file_info: {
-        size: 13946,
-        md5: "e7a3021779ce48df7fc34995f9d71e04",
-        sha1: "2796c923c381271cabc06cfcf217c5e435deda55",
-        sha256: "ff4e79f9b32eca0beabcc376f07723815d8c8ff06832f067f3445f7f871c54c9"
-      }
-    }
-  }
-};
+import { virusTotal } from '../../../../../lib/services/virustotal';
+import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
 
 async function getScanDetails(id: string) {
   try {
+    // Get scan record from our database
     const scan = await prisma.fileScan.findUnique({
       where: { id }
     });
@@ -60,21 +17,33 @@ async function getScanDetails(id: string) {
       return null;
     }
 
-    // Only return results if scan is completed
-    if (scan.status === 'COMPLETED') {
-      return {
-        scan,
-        results: mockVirusTotalResponse.data.attributes,
-        meta: mockVirusTotalResponse.data.meta
-      };
+    // If we have a scanId, try to get results regardless of status
+    if (scan.scanId) {
+      try {
+        const vtAnalysis = await virusTotal.getAnalysis(scan.scanId);
+        
+        // If analysis is completed, update our database status
+        if (vtAnalysis.data.attributes.status === 'completed' && scan.status !== 'COMPLETED') {
+          await prisma.fileScan.update({
+            where: { id: scan.id },
+            data: { status: 'COMPLETED' }
+          });
+          // Update local scan object
+          scan.status = 'COMPLETED';
+        }
+
+        return {
+          scan,
+          virusTotalData: vtAnalysis.data
+        };
+      } catch (error) {
+        console.error('Error fetching VirusTotal results:', error);
+        return { scan, virusTotalData: null };
+      }
     }
 
-    // For pending or other states, just return the scan info
-    return {
-      scan,
-      results: null,
-      meta: null
-    };
+    // Return scan without VirusTotal data if no scanId
+    return { scan, virusTotalData: null };
   } catch (error) {
     console.error('Error fetching scan:', error);
     return null;
@@ -98,13 +67,24 @@ export default async function ScanPage({
     notFound();
   }
 
+  const showStatusChecker = data.scan.status !== 'COMPLETED' && 
+                          data.scan.status !== 'ERROR' && 
+                          data.scan.scanId;
+
   return (
     <div>
+      {showStatusChecker && (
+        <ScanStatusChecker
+          dbId={data.scan.id}
+          scanId={data.scan.scanId!}
+          status={data.scan.status}
+        />
+      )}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Scan Results</h1>
         <p className="mt-1 text-gray-400">
           {data.scan.status === 'PENDING' 
-            ? 'Your file is being processed...'
+            ? 'Your file is being processed...' 
             : data.scan.status === 'COMPLETED'
             ? 'Detailed analysis of your file'
             : 'There was an issue with the scan'
@@ -114,9 +94,10 @@ export default async function ScanPage({
 
       <div className="mt-6">
         <ScanResults
-          result={data.results}
           fileName={data.scan.fileName}
+          fileSize={data.scan.fileSize}
           status={data.scan.status}
+          virusTotalData={data.virusTotalData}
         />
       </div>
     </div>

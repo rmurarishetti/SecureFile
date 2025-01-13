@@ -3,77 +3,75 @@
 
 import { Shield, AlertCircle, Clock, Loader2 } from 'lucide-react';
 
-interface ScanResult {
-  status: string;
-  stats: {
-    malicious: number;
-    suspicious: number;
-    undetected: number;
-    harmless: number;
-  };
-  results: Record<string, {
-    category: string;
-    result: string | null;
-    engine_name: string;
-  }>;
-  meta?: {
-    file_info: {
-      size: number;
-      md5: string;
-      sha1: string;
-      sha256: string;
-    };
-  };
-}
 
 interface ScanResultsProps {
-  result?: ScanResult | null;
   fileName: string;
-  status?: string; // Added for pending states
+  fileSize: number;
+  status: string;
+  virusTotalData: any | null;
 }
 
-export default function ScanResults({ result, fileName, status = 'PENDING' }: ScanResultsProps) {
-  if (!result) {
+export default function ScanResults({ 
+  fileName, 
+  fileSize, 
+  status, 
+  virusTotalData 
+}: ScanResultsProps) {
+  if (status === 'PENDING' || status === 'SCANNING') {
     return (
       <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-xl font-semibold text-white mb-2">{fileName}</h2>
-              <p className="text-sm text-gray-400">Scan {status.toLowerCase()}</p>
+              <p className="text-sm text-gray-400">
+                {(fileSize / 1024 / 1024).toFixed(2)} MB
+              </p>
             </div>
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50">
-              {status === 'PENDING' || status === 'SCANNING' ? (
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-              ) : (
-                <AlertCircle className="w-8 h-8 text-yellow-500" />
-              )}
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/20">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
             </div>
           </div>
         </div>
-
         <div className="p-12 flex flex-col items-center justify-center">
-          {status === 'PENDING' || status === 'SCANNING' ? (
-            <>
-              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-              <p className="text-gray-400 text-lg">
-                {status === 'PENDING' ? 'Starting scan...' : 'Scanning in progress...'}
-              </p>
-            </>
-          ) : (
-            <>
-              <AlertCircle className="w-12 h-12 text-yellow-500 mb-4" />
-              <p className="text-gray-400 text-lg">No scan results available</p>
-            </>
-          )}
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+          <p className="text-gray-400 text-lg">
+            {status === 'PENDING' ? 'Preparing scan...' : 'Scanning in progress...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  const totalEngines = Object.keys(result.results).length;
-  const detectionScore = result.stats.malicious;
-  
+  if (!virusTotalData) {
+    return (
+      <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-white mb-2">{fileName}</h2>
+              <p className="text-sm text-gray-400">
+                {(fileSize / 1024 / 1024).toFixed(2)} MB
+              </p>
+            </div>
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+          </div>
+        </div>
+        <div className="p-12 flex flex-col items-center justify-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+          <p className="text-gray-400 text-lg">
+            Unable to retrieve scan results
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = virusTotalData.attributes.stats;
+  const detectionScore = stats.malicious;
+
   const getScoreColor = (score: number) => {
     if (score === 0) return 'text-green-500';
     if (score < 3) return 'text-yellow-500';
@@ -94,10 +92,7 @@ export default function ScanResults({ result, fileName, status = 'PENDING' }: Sc
           <div>
             <h2 className="text-xl font-semibold text-white mb-2">{fileName}</h2>
             <p className="text-sm text-gray-400">
-              {result.meta?.file_info.size 
-                ? `${(result.meta.file_info.size / 1024).toFixed(2)} KB` 
-                : 'Size unknown'
-              }
+              {(fileSize / 1024 / 1024).toFixed(2)} MB
             </p>
           </div>
           <div className={`flex items-center justify-center w-16 h-16 rounded-full ${getScoreBackground(detectionScore)}`}>
@@ -111,10 +106,10 @@ export default function ScanResults({ result, fileName, status = 'PENDING' }: Sc
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 p-6 border-b border-gray-800">
         {[
-          { label: 'Malicious', value: result.stats.malicious, color: 'text-red-500' },
-          { label: 'Suspicious', value: result.stats.suspicious, color: 'text-yellow-500' },
-          { label: 'Harmless', value: result.stats.harmless, color: 'text-green-500' },
-          { label: 'Undetected', value: result.stats.undetected, color: 'text-gray-400' },
+          { label: 'Malicious', value: stats.malicious, color: 'text-red-500' },
+          { label: 'Suspicious', value: stats.suspicious, color: 'text-yellow-500' },
+          { label: 'Harmless', value: stats.harmless, color: 'text-green-500' },
+          { label: 'Undetected', value: stats.undetected, color: 'text-gray-400' },
         ].map((stat) => (
           <div key={stat.label} className="text-center">
             <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
@@ -127,7 +122,7 @@ export default function ScanResults({ result, fileName, status = 'PENDING' }: Sc
       <div className="p-6">
         <h3 className="text-lg font-medium text-white mb-4">Security Vendors' Analysis</h3>
         <div className="grid grid-cols-2 gap-4">
-          {Object.entries(result.results).map(([key, value]) => (
+          {Object.entries(virusTotalData.attributes.results).map(([key, value]: [string, any]) => (
             <div key={key} className="flex items-center justify-between p-3 bg-black/30 rounded-lg">
               <span className="text-sm text-gray-300">{value.engine_name}</span>
               <span className={`text-sm ${
