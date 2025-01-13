@@ -53,7 +53,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6">
-        <FileUpload userEmail={session?.user?.email} />
+        <FileUpload />
       </div>
 
       {/* Quick Stats Section */}
