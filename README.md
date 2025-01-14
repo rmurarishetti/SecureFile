@@ -1,21 +1,32 @@
-# SecureFile - File Scanning Platform
+# SecureFile - Secure File Scanning Platform
 
 <p align="center">
-    <img src="https://skillicons.dev/icons?i=ts,nextjs,react,prisma,postgresql,tailwind,aws" />
+    <img src="https://skillicons.dev/icons?i=ts,nextjs,react,prisma,postgresql,tailwind,aws,docker" />
 </p>
 
-## 🚀 Tech Stack
+## 🚀 Overview
+
+SecureFile is a secure file scanning platform that allows users to upload and analyze files for potential security threats using the VirusTotal API.
+
+## 🌟 Key Features
+
+- 🔒 Secure file uploads
+- 🦠 Comprehensive virus scanning
+- 📊 Detailed scan results
+- 👤 User authentication
+- 📱 Responsive design
+
+## 🛠️ Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
 - **Authentication:** Auth0
 - **Database:** PostgreSQL with Prisma ORM
 - **Styling:** Tailwind CSS
+- **Containerization:** Docker
 - **Deployment:** AWS EC2
 - **API Integration:** VirusTotal API
-- **UI Components:** Custom components with Lucide Icons
 
 ## 📁 Project Structure
-
 ```
 ├── app/
 │   ├── api/
@@ -40,6 +51,66 @@
 │   ├── schema.prisma
 │   └── seed.ts
 └── public/
+```
+
+## 🐳 Docker Setup
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Environment Configuration
+
+Create a `.env.local` file with the following variables:
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://file_scanner_admin:your_password@postgres:5432/file_scanner
+
+# Auth0 Configuration
+AUTH0_SECRET=a_long_random_string
+AUTH0_BASE_URL=http://localhost:3000
+AUTH0_ISSUER_BASE_URL=https://your-domain.auth0.com
+AUTH0_CLIENT_ID=your_client_id
+AUTH0_CLIENT_SECRET=your_client_secret
+```
+
+# VirusTotal API
+```
+VIRUSTOTAL_API_KEY=your_virustotal_api_key
+```
+
+# Build the development image
+```
+docker build -f Dockerfile.dev -t myapp-dev .
+```
+
+# Development Environment
+## Build and Run Development Container
+
+```
+# Run the development container
+docker run -p 3000:3000 \
+  -v $(pwd):/app \
+  -v /app/node_modules \
+  -e NODE_ENV=development \
+  myapp-dev'
+
+# Alternatively, using Docker Compose
+docker-compose -f docker-compose.dev.yml up --build
+```
+
+# Production Environment
+## Build and Run Prod Container
+
+```
+# Build the production image
+docker build -f Dockerfile.prod -t myapp-prod .
+
+# Run using Docker Compose
+docker-compose -f docker-compose.prod.yml up -d
+```
+
 ```
 
 ## 🛠️ Installation Steps
