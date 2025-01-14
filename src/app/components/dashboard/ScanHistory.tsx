@@ -116,7 +116,7 @@ export default function ScanHistory({ initialScans, totalPages }: ScanHistoryPro
       </div>
 
       {/* Pagination */}
-      <div className="px-6 py-4 flex items-center justify-between border-t border-gray-800">
+      {/* <div className="px-6 py-4 flex items-center justify-between border-t border-gray-800">
         <button
           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
           disabled={currentPage === 1}
@@ -134,7 +134,7 @@ export default function ScanHistory({ initialScans, totalPages }: ScanHistoryPro
         >
           <ChevronRight className="w-5 h-5" />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

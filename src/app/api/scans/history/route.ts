@@ -30,12 +30,10 @@ export async function GET(request: Request) {
     const scans = await prisma.fileScan.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
-      take: 10
     });
 
     return NextResponse.json({
       scans,
-      totalPages: 1 // Add pagination later
     });
   } catch (error) {
     console.error('Error fetching scans:', error);
