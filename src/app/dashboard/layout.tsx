@@ -1,45 +1,71 @@
 // app/dashboard/layout.tsx
-import { redirect } from 'next/navigation';
-import { getSession } from '@auth0/nextjs-auth0';
-import { prisma } from '../../../lib/prisma';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/navigation';
 import DashboardSidebar from '@/app/components/dashboard/Sidebar';
 
 async function getOrCreateUser(email: string, name?: string | null) {
   try {
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {
-        name: name || undefined,
+    const response = await fetch('/api/user/upsert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      create: {
-        email,
-        name: name || undefined,
-      },
+      body: JSON.stringify({ email, name }),
     });
-    return user;
+    
+    if (!response.ok) throw new Error('Failed to upsert user');
+    return await response.json();
   } catch (error) {
     console.error('Error upserting user:', error);
     return null;
   }
 }
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-  
-  if (!session?.user?.email) {
-    redirect('/api/auth/login');
+  const { user, error: authError, isLoading } = useUser();
+  const router = useRouter();
+  const [dbUser, setDbUser] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/api/auth/login');
+      } else if (user.email) {
+        getOrCreateUser(user.email, user.name || undefined)
+          .then(userData => {
+            if (!userData) {
+              setError('Failed to create/fetch user');
+              router.push('/');
+            } else {
+              setDbUser(userData);
+            }
+          })
+          .catch(err => {
+            console.error('Error in user setup:', err);
+            setError('Failed to set up user');
+          });
+      }
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  // Get or create user in database
-  const user = await getOrCreateUser(session.user.email, session.user.name);
-  
+  if (error || authError) {
+    return <div>Error: {error || authError?.message}</div>;
+  }
+
   if (!user) {
-    console.error('Failed to create/fetch user');
-    redirect('/');
+    return null;
   }
 
   return (
@@ -60,7 +86,10 @@ export default async function DashboardLayout({
 
       {/* Content */}
       <div className="relative flex h-screen">
-        <DashboardSidebar name={session.user.name} email={session.user.email} />
+        <DashboardSidebar 
+          name={user.name || ''} 
+          email={user.email || ''} 
+        />
         <main className="flex-1 pl-64 overflow-auto">
           <div className="px-8 py-6">
             {children}

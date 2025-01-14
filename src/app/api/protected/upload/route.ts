@@ -1,6 +1,5 @@
 // app/api/protected/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@auth0/nextjs-auth0';
 import { virusTotal } from '../../../../../lib/services/virustotal';
 import { prisma } from '../../../../../lib/prisma';
 
@@ -9,34 +8,34 @@ export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session?.user?.email) {
+    // Handle file upload
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const email = formData.get('email') as string;
+
+    if (!email) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
       );
     }
 
     // Get user
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+      where: { email }
     });
 
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
-      );
-    }
-
-    // Handle file upload
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-
-    if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
       );
     }
 

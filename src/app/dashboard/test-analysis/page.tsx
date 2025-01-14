@@ -3,7 +3,7 @@ import ScanResults from '@/app/components/dashboard/ScanResults';
 import { virusTotal } from '../../../../lib/services/virustotal';
 
 export default async function TestAnalysisPage() {
-  const scanId = 'MDZlYzhkYTA0Y2NhN2VhNTE4YzhmZDVlN2I4ZWVhYjg6MTczNjc1NDQ3MA==';
+  const scanId = 'NjE2NzJmNTVhNGE0MGVkOWFiZDkzZjQ2NTM0OGMxMGI6MTczNjgzMTQxMQ==';
   
   try {
     const analysis = await virusTotal.getAnalysis(scanId);

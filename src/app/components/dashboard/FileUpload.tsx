@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -11,6 +12,7 @@ export default function FileUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { user } = useUser();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -46,7 +48,7 @@ export default function FileUpload() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !user?.email) return;
 
     try {
       setIsUploading(true);
@@ -54,6 +56,7 @@ export default function FileUpload() {
 
       const formData = new FormData();
       formData.append('file', selectedFile);
+      formData.append('email', user.email);
 
       const response = await fetch('/api/protected/upload', {
         method: 'POST',
@@ -77,6 +80,10 @@ export default function FileUpload() {
       setIsUploading(false);
     }
   };
+
+  if (!user?.email) {
+    return null;
+  }
 
   return (
     <div className="max-w-2xl mx-auto">

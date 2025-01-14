@@ -1,40 +1,60 @@
 // app/dashboard/page.tsx
-import { getSession } from '@auth0/nextjs-auth0';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/navigation';
 import FileUpload from "@/app/components/dashboard/FileUpload";
-import { getUserByEmail, getUserStats } from '../../../lib/services/user';
 import { format } from 'date-fns';
 
-async function getStats(userEmail: string) {
-  try {
-    const user = await getUserByEmail(userEmail);
-    if (!user) return null;
-    
-    const stats = await getUserStats(user.id);
-    const lastScan = user.fileScans?.[0]?.createdAt;
-
-    return {
-      totalScans: stats.total || 0,
-      threatsDetected: stats.error || 0,  // Assuming 'error' status means threat detected
-      lastScanDate: lastScan ? format(lastScan, 'MMM dd, yyyy') : 'Never'
-    };
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    return null;
-  }
+interface Stats {
+  totalScans: number;
+  threatsDetected: number;
+  lastScanDate: string;
 }
 
-export default async function DashboardPage() {
-  const session = await getSession();
-  const stats = session?.user ? await getStats(session.user.email as string) : null;
+export default function DashboardPage() {
+  const { user, error, isLoading } = useUser();
+  const router = useRouter();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/api/auth/login');
+    }
+  }, [user, isLoading, router]);
+
+  useEffect(() => {
+    async function fetchStats() {
+      if (user?.email) {
+        try {
+          const response = await fetch(`/api/stats?email=${encodeURIComponent(user.email)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setStats(data);
+          }
+        } catch (error) {
+          console.error('Error fetching stats:', error);
+        } finally {
+          setIsLoadingStats(false);
+        }
+      }
+    }
+
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  if (isLoading || !user) {
+    return <div>Loading...</div>;
+  }
 
   const statCards = [
     { 
       label: 'Files Scanned', 
       value: stats?.totalScans.toString() || '0'
-    },
-    { 
-      label: 'Threats Detected', 
-      value: stats?.threatsDetected.toString() || '0'
     },
     { 
       label: 'Last Scan', 
@@ -56,7 +76,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick Stats Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
         {statCards.map((stat, index) => (
           <div
             key={index}

@@ -4,7 +4,7 @@ import { virusTotal } from '../../../../lib/services/virustotal';
 
 export async function GET() {
   try {
-    const scanId = 'ZTdhMzAyMTc3OWNlNDhkZjdmYzM0OTk1ZjlkNzFlMDQ6MTczNjU4NzA4OQ==';
+    const scanId = 'NjE2NzJmNTVhNGE0MGVkOWFiZDkzZjQ2NTM0OGMxMGI6MTczNjgzMTQxMQ==';
     
     // Get analysis from VirusTotal
     const analysis = await virusTotal.getAnalysis(scanId);

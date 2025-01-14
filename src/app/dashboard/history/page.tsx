@@ -1,44 +1,62 @@
 // app/dashboard/history/page.tsx
-import { getSession } from '@auth0/nextjs-auth0';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/navigation';
 import ScanHistory from '@/app/components/dashboard/ScanHistory';
-import { redirect } from 'next/navigation';
-import { prisma } from '../../../../lib/prisma';
 import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
 
-async function getScans(userId: string) {
-  try {
-    const scans = await prisma.fileScan.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 10
-    });
-    
-    return {
-      scans,
-      totalPages: 1 // Add pagination later
-    };
-  } catch (error) {
-    console.error('Error fetching scans:', error);
-    return { scans: [], totalPages: 0 };
-  }
+interface Scan {
+  id: string;
+  status: string;
+  scanId?: string;
+  // Add other scan properties as needed
 }
 
-export default async function HistoryPage() {
-  const session = await getSession();
-  
-  if (!session?.user?.email) {
-    redirect('/api/auth/login');
+interface ScanData {
+  scans: Scan[];
+  totalPages: number;
+}
+
+export default function HistoryPage() {
+  const { user, isLoading } = useUser();
+  const router = useRouter();
+  const [scanData, setScanData] = useState<ScanData>({ scans: [], totalPages: 0 });
+  const [isLoadingScans, setIsLoadingScans] = useState(true);
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user?.email) {
+        router.push('/api/auth/login');
+        return;
+      }
+
+      // Fetch user's scans
+
+      const fetchScans = async () => {
+        if (user?.email) {
+          try {
+            const response = await fetch(`/api/scans/history?email=${encodeURIComponent(user.email)}`);
+            if (!response.ok) throw new Error('Failed to fetch scans');
+
+            const data = await response.json();
+            setScanData(data);
+          } catch (error) {
+            console.error('Error fetching scans:', error);
+          } finally {
+            setIsLoadingScans(false);
+          }
+        }
+      };
+
+      fetchScans();
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || isLoadingScans) {
+    return <div>Loading...</div>;
   }
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email }
-  });
-
-  if (!user) {
-    redirect('/api/auth/login');
-  }
-
-  const { scans, totalPages } = await getScans(user.id);
 
   return (
     <div>
@@ -50,13 +68,13 @@ export default async function HistoryPage() {
       </div>
 
       <div className="mt-6">
-        <ScanHistory initialScans={scans} totalPages={totalPages} />
+        <ScanHistory initialScans={scanData.scans} totalPages={scanData.totalPages} />
       </div>
 
       {/* Add status checkers for pending scans */}
-      {scans.map(scan => 
+      {scanData.scans.map(scan =>
         scan.status === 'PENDING' && scan.scanId ? (
-          <ScanStatusChecker 
+          <ScanStatusChecker
             key={scan.id}
             dbId={scan.id}
             scanId={scan.scanId}
