@@ -42,8 +42,11 @@ export class VirusTotalAPI {
 
   async getAnalysis(analysisId: string) {
     try {
-      const response = await fetch(`${VIRUSTOTAL_API_URL}/analyses/${analysisId}`, {
-        headers: this.headers
+      const response = await fetch(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, {
+        headers: {
+          'x-apikey': VIRUSTOTAL_API_KEY!,
+          'accept': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -51,6 +54,7 @@ export class VirusTotalAPI {
       }
 
       const data = await response.json();
+      console.log('Source Analysis:', data);
       return data;
     } catch (error) {
       console.error('VirusTotal analysis error:', error);

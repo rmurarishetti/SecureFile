@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useRouter } from 'next/navigation';
 import ScanHistory from '@/app/components/dashboard/ScanHistory';
-import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
+
 
 interface Scan {
   id: string;
@@ -71,7 +71,7 @@ export default function HistoryPage() {
         <ScanHistory initialScans={scanData.scans} totalPages={scanData.totalPages} />
       </div>
 
-      {/* Add status checkers for pending scans */}
+      {/* Add status checkers for pending scans
       {scanData.scans.map(scan =>
         scan.status === 'PENDING' && scan.scanId ? (
           <ScanStatusChecker
@@ -81,7 +81,7 @@ export default function HistoryPage() {
             status={scan.status}
           />
         ) : null
-      )}
+      )} */}
     </div>
   );
 }
