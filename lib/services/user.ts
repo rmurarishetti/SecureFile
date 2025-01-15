@@ -2,11 +2,22 @@
 import { prisma } from '../prisma'
 import type { Prisma, User, FileScan } from '@prisma/client'
 
+/**
+* Type definition for Auth0 user data
+*/
 type Auth0User = {
   email: string;
   name?: string;
 }
 
+/**
+* Creates or updates a user record based on Auth0 credentials
+* Includes recent file scans in the response
+* 
+* @param email - User's email address
+* @param name - Optional user name
+* @returns User record with recent file scans
+*/
 export async function getOrCreateUser({ email, name }: Auth0User) {
   try {
     const user = await prisma.user.upsert({
@@ -37,6 +48,12 @@ export async function getOrCreateUser({ email, name }: Auth0User) {
   }
 }
 
+/**
+* Retrieves a user by email with their recent file scans
+* 
+* @param email - User's email address
+* @returns User record with recent file scans or null
+*/
 export async function getUserByEmail(email: string) {
   try {
     return await prisma.user.findUnique({
@@ -56,6 +73,16 @@ export async function getUserByEmail(email: string) {
   }
 }
 
+/**
+* Retrieves paginated file scans for a user
+* Supports optional status filtering
+* 
+* @param userId - User's ID
+* @param page - Page number (default: 1)
+* @param limit - Items per page (default: 10)
+* @param status - Optional status filter
+* @returns Paginated file scans with metadata
+*/
 export async function getUserFiles(
   userId: string, 
   page = 1, 
@@ -103,6 +130,9 @@ export async function getUserFiles(
   }
 }
 
+/**
+* Interface for user statistics
+*/
 interface UserStats {
   total: number;
   pending: number;

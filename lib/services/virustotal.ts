@@ -1,10 +1,20 @@
 // lib/services/virustotal.ts
+
+// Environment variables for API configuration
 const VIRUSTOTAL_API_KEY = process.env.VIRUSTOTAL_API_KEY;
 const VIRUSTOTAL_API_URL = 'https://www.virustotal.com/api/v3';
 
+/**
+* VirusTotal API wrapper class
+* Provides methods for file scanning and analysis retrieval
+*/
 export class VirusTotalAPI {
   private headers: HeadersInit;
 
+  /**
+  * Initialize API client with authentication headers
+  * Requires VIRUSTOTAL_API_KEY environment variable
+  */
   constructor() {
     this.headers = {
       'x-apikey': VIRUSTOTAL_API_KEY!,
@@ -12,6 +22,14 @@ export class VirusTotalAPI {
     };
   }
 
+  /**
+  * Uploads a file to VirusTotal for scanning
+  * 
+  * @param file - File buffer to upload
+  * @param filename - Name of the file
+  * @returns Object containing scan and analysis IDs
+  * @throws Error if upload fails
+  */
   async uploadFile(file: Buffer, filename: string) {
     try {
       const formData = new FormData();
@@ -40,6 +58,14 @@ export class VirusTotalAPI {
     }
   }
 
+  /**
+  * Retrieves analysis results for a previously uploaded file
+  * Implements cache-busting to ensure fresh results
+  * 
+  * @param analysisId - ID of the analysis to retrieve
+  * @returns Analysis results from VirusTotal
+  * @throws Error if analysis retrieval fails
+  */
   async getAnalysis(analysisId: string) {
     try {
       const response = await fetch(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, {
@@ -47,13 +73,13 @@ export class VirusTotalAPI {
         headers: {
           'x-apikey': VIRUSTOTAL_API_KEY!,
           'accept': 'application/json',
-          // Add a cache-busting parameter
+          // Cache-busting headers
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache',
-          // Optional: add a timestamp to force a fresh request
+          // Timestamp to force fresh request
           'X-Timestamp': Date.now().toString()
         },
-        // Explicitly disable caching
+        // Disable response caching
         cache: 'no-store'
       });
   

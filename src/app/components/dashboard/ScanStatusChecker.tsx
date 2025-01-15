@@ -5,12 +5,23 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
+/**
+* Props interface for the ScanStatusChecker component
+*/
 interface ScanStatusCheckerProps {
   scanId: string;
   dbId: string;
   status: string;
 }
 
+/**
+* Background component that polls scan status and updates UI
+* Implements polling logic for incomplete scans
+* 
+* @param scanId - VirusTotal scan identifier 
+* @param dbId - Database record identifier
+* @param status - Current scan status
+*/
 export default function ScanStatusChecker({ scanId, dbId, status }: ScanStatusCheckerProps) {
   const router = useRouter();
   const { user, isLoading } = useUser();

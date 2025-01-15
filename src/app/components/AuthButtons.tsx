@@ -4,6 +4,12 @@
 import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 
+/**
+* Authentication buttons component that handles login/logout states
+* Displays different UI states based on authentication status
+* 
+* @returns {JSX.Element} Authentication controls based on user state
+*/
 export default function AuthButtons() {
   const { user, isLoading } = useUser();
 

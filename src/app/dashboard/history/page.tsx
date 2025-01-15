@@ -6,7 +6,9 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import { useRouter } from 'next/navigation';
 import ScanHistory from '@/app/components/dashboard/ScanHistory';
 
-
+/**
+* Interface defining individual scan record structure
+*/
 interface Scan {
   id: string;
   status: string;
@@ -14,17 +16,28 @@ interface Scan {
   // Add other scan properties as needed
 }
 
+/**
+* Interface for paginated scan data response
+*/
 interface ScanData {
   scans: Scan[];
   totalPages: number;
 }
 
+/**
+* History page component displaying user's scan history
+* Provides paginated view of past file scans with status
+*/
 export default function HistoryPage() {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const [scanData, setScanData] = useState<ScanData>({ scans: [], totalPages: 0 });
   const [isLoadingScans, setIsLoadingScans] = useState(true);
 
+  /**
+  * Authentication and data fetching effect
+  * Handles auth redirect and scan history retrieval
+  */
   useEffect(() => {
     if (!isLoading) {
       if (!user?.email) {
@@ -70,18 +83,6 @@ export default function HistoryPage() {
       <div className="mt-6">
         <ScanHistory initialScans={scanData.scans} totalPages={scanData.totalPages} />
       </div>
-
-      {/* Add status checkers for pending scans
-      {scanData.scans.map(scan =>
-        scan.status === 'PENDING' && scan.scanId ? (
-          <ScanStatusChecker
-            key={scan.id}
-            dbId={scan.id}
-            scanId={scan.scanId}
-            status={scan.status}
-          />
-        ) : null
-      )} */}
     </div>
   );
 }

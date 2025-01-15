@@ -2,6 +2,12 @@
 import Link from 'next/link';
 import { Shield } from 'lucide-react';
 
+/**
+ * Hero component for the landing page
+ * Features a dark theme with gradient overlays, grid patterns, and CTA buttons
+ * 
+ * @returns {JSX.Element} Hero section with visual effects and call-to-action buttons
+ */
 const Hero = () => {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-black text-white overflow-hidden">

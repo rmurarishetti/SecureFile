@@ -6,6 +6,10 @@ import Providers from './providers';
 
 const inter = Inter({ subsets: ["latin"] });
 
+/**
+ * Application metadata configuration
+ * Defines SEO and PWA-related properties
+ */
 export const metadata: Metadata = {
   title: "SecureFile",
   description: "Secure File Scanning Platform",
@@ -19,6 +23,14 @@ export const metadata: Metadata = {
   }
 };
 
+/**
+ * Root layout component that wraps all pages
+ * Implements HTML structure, theme support, and global font
+ * 
+ * @param {Object} props - Component properties
+ * @param {React.ReactNode} props.children - Child components to be rendered
+ * @returns {JSX.Element} Root HTML structure with theme and font support
+ */
 export default function RootLayout({
   children,
 }: {

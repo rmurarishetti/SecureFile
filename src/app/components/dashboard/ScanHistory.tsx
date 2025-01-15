@@ -10,21 +10,31 @@ import {
   XCircle, 
   Clock,
   Search,
-  ChevronLeft,
-  ChevronRight,
   ArrowRight
 } from 'lucide-react';
 
+/**
+* Type definition for component props
+*/
 type ScanHistoryProps = {
   initialScans: any[];
   totalPages: number;
 };
 
+/**
+* ScanHistory component displays a table of file scan records
+* Includes search functionality and status indicators
+*/
 export default function ScanHistory({ initialScans, totalPages }: ScanHistoryProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
+  /**
+  * Determines the color for status indicators
+  * @param status Current scan status
+  * @returns CSS class for text color
+  */
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'COMPLETED':
@@ -36,6 +46,11 @@ export default function ScanHistory({ initialScans, totalPages }: ScanHistoryPro
     }
   };
 
+  /**
+  * Returns appropriate icon component for scan status
+  * @param status Current scan status
+  * @returns Lucide icon component
+  */
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'COMPLETED':
@@ -47,6 +62,10 @@ export default function ScanHistory({ initialScans, totalPages }: ScanHistoryPro
     }
   };
 
+  /**
+  * Handles navigation to individual scan details
+  * @param scanId ID of the selected scan
+  */
   const handleRowClick = (scanId: string) => {
     router.push(`/dashboard/scans/${scanId}`);
   };
@@ -114,27 +133,6 @@ export default function ScanHistory({ initialScans, totalPages }: ScanHistoryPro
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
-      {/* <div className="px-6 py-4 flex items-center justify-between border-t border-gray-800">
-        <button
-          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-          disabled={currentPage === 1}
-          className="p-2 rounded-lg hover:bg-gray-800 disabled:opacity-50 text-gray-400 hover:text-white transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <span className="text-sm text-gray-400">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-          disabled={currentPage === totalPages}
-          className="p-2 rounded-lg hover:bg-gray-800 disabled:opacity-50 text-gray-400 hover:text-white transition-colors"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div> */}
     </div>
   );
 }

@@ -1,4 +1,13 @@
 // components/Logo.tsx
+
+/**
+ * Logo component that renders the SecureFile brand mark and wordmark
+ * Combines an SVG shield icon with a triangle motif and company name
+ * 
+ * @param {Object} props - Component properties
+ * @param {string} props.className - Optional CSS classes for additional styling
+ * @returns {JSX.Element} Combined logo mark and company name
+ */
 const Logo = ({ className = "" }: { className?: string }) => {
     return (
       <div className="flex items-center gap-2">

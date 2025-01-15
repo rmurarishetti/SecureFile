@@ -5,26 +5,41 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useRouter } from 'next/navigation';
 import FileUpload from "@/app/components/dashboard/FileUpload";
-import { format } from 'date-fns';
 
+/**
+* Stats interface defining dashboard statistics structure
+*/
 interface Stats {
   totalScans: number;
-  threatsDetected: number;
   lastScanDate: string;
 }
 
+/**
+* Dashboard page component providing file upload and statistics
+* Requires authentication and displays user-specific scan data
+*/
 export default function DashboardPage() {
+  // Authentication and routing hooks
   const { user, error, isLoading } = useUser();
   const router = useRouter();
+
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
+  /**
+  * Authentication check effect
+  * Redirects to login if user is not authenticated
+  */
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/api/auth/login');
     }
   }, [user, isLoading, router]);
 
+  /**
+  * Statistics fetching effect
+  * Retrieves user-specific scan statistics
+  */
   useEffect(() => {
     async function fetchStats() {
       if (user?.email) {
@@ -51,6 +66,10 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
+  /**
+  * Statistics card configuration
+  * Defines display format for each statistic
+  */
   const statCards = [
     { 
       label: 'Files Scanned', 

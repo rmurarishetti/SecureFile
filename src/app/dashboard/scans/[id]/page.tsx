@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import ScanResults from '@/app/components/dashboard/ScanResults';
 import ScanStatusChecker from '@/app/components/dashboard/ScanStatusChecker';
 
+/**
+* Interface defining scan data structure
+*/
 interface ScanData {
   scan: {
     id: string;
@@ -18,6 +21,11 @@ interface ScanData {
   virusTotalData: any | null;
 }
 
+/**
+* Individual scan page component showing detailed results
+* Provides real-time status updates and scan findings
+*/
+
 export default function ScanPage({
   params,
 }: {
@@ -28,6 +36,10 @@ export default function ScanPage({
   const [scanData, setScanData] = useState<ScanData | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
+  /**
+  * Authentication and data fetching effect
+  * Handles auth redirect and scan details retrieval
+  */
   useEffect(() => {
     if (!isLoading) {
       if (!user?.email) {

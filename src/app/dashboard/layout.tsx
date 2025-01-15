@@ -6,6 +6,14 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import { useRouter } from 'next/navigation';
 import DashboardSidebar from '@/app/components/dashboard/Sidebar';
 
+/**
+* Helper function to create or fetch user from database
+* Handles user synchronization between Auth0 and local database
+* 
+* @param email - User's email from Auth0
+* @param name - Optional user's name from Auth0
+* @returns User data or null if operation fails
+*/
 async function getOrCreateUser(email: string, name?: string | null) {
   try {
     const response = await fetch('/api/user/upsert', {
@@ -24,6 +32,10 @@ async function getOrCreateUser(email: string, name?: string | null) {
   }
 }
 
+/**
+* Dashboard layout component providing consistent structure and authentication
+* Features sidebar navigation and background visual effects
+*/
 export default function DashboardLayout({
   children,
 }: {
@@ -34,6 +46,10 @@ export default function DashboardLayout({
   const [dbUser, setDbUser] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+  * Authentication and user setup effect
+  * Handles redirects and user synchronization
+  */
   useEffect(() => {
     if (!isLoading) {
       if (!user) {

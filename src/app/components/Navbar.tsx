@@ -8,15 +8,24 @@ import { usePathname } from "next/navigation";
 import { Sun, Moon } from "lucide-react";
 import AuthButtons from "./AuthButtons";
 
+/**
+* Navigation link configuration
+* Defines the main navigation items for the header
+*/
 const navLinks = [
-    { title: "Products", id: "products" },
-    { title: "Solutions", id: "solutions" },
-    { title: "Resources", id: "resources" },
-    { title: "Enterprise", id: "enterprise" },
-    { title: "Docs", id: "docs" },
-    { title: "Pricing", id: "pricing" },
+    { title: "Products", id: "/products" },
+    { title: "Solutions", id: "/solutions" },
+    { title: "Resources", id: "/resources" },
+    { title: "Enterprise", id: "/enterprise" },
+    { title: "Docs", id: "https://docs.virustotal.com/reference/overview" },
 ];
 
+/**
+* Navbar component providing main navigation and theme controls
+* Features responsive design, theme toggling, and authentication buttons
+* 
+* @returns {JSX.Element} Header with navigation links and controls
+*/
 const Navbar = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -45,7 +54,7 @@ const Navbar = () => {
                         {navLinks.map((nav) => (
                             <li key={nav.id}>
                                 <Link
-                                    href={`/${nav.id}`}
+                                    href={`${nav.id}`}
                                     className="text-sm text-gray-300 hover:text-white transition-colors"
                                 >
                                     {nav.title}

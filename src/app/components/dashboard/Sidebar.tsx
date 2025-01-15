@@ -6,16 +6,27 @@ import { usePathname } from 'next/navigation';
 import { Upload, History, LogOut, User } from 'lucide-react';
 import Logo from '../Logo';
 
+/**
+* Navigation items configuration for the sidebar
+* Each item defines a route, label and associated icon
+*/
 const navItems = [
   { href: '/dashboard', label: 'Upload File', icon: Upload },
   { href: '/dashboard/history', label: 'Scan History', icon: History },
 ];
 
+/**
+* Props interface for the Sidebar component
+*/
 interface SidebarProps {
   name:string;
   email:string;
 }
 
+/**
+* Dashboard sidebar component providing navigation and user info
+* Features a fixed position sidebar with backdrop blur effect
+*/
 export default function DashboardSidebar({ name, email }: SidebarProps) {
   const pathname = usePathname();
 

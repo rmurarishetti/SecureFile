@@ -3,7 +3,9 @@
 
 import { AlertCircle, Loader2 } from 'lucide-react';
 
-
+/**
+* Props interface for ScanResults component
+*/
 interface ScanResultsProps {
   fileName: string;
   fileSize: number;
@@ -11,12 +13,20 @@ interface ScanResultsProps {
   virusTotalData: any | null;
 }
 
+/**
+* Displays detailed virus scan results for a file
+* Shows loading states, errors, and comprehensive scan data
+*/
 export default function ScanResults({ 
   fileName, 
   fileSize, 
   status, 
   virusTotalData 
 }: ScanResultsProps) {
+  /**
+  * Loading state view
+  * Displayed during PENDING or SCANNING status
+  */
   if (status === 'PENDING' || status === 'SCANNING') {
     return (
       <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
@@ -43,6 +53,10 @@ export default function ScanResults({
     );
   }
 
+  /**
+  * Error state view
+  * Displayed when no VirusTotal data is available
+  */
   if (!virusTotalData) {
     return (
       <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
@@ -84,6 +98,9 @@ export default function ScanResults({
     return 'bg-red-500/20';
   };
 
+  /**
+  * Success state view with complete scan results
+  */
   return (
     <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
       {/* Header */}

@@ -6,6 +6,11 @@ import { Upload, X, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
+/**
+* FileUpload component for handling file uploads and scans
+* Supports drag & drop and click-to-upload functionality
+* Enforces 5MB file size limit and handles upload states
+*/
 export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,6 +19,10 @@ export default function FileUpload() {
   const router = useRouter();
   const { user } = useUser();
 
+  /**
+  * Drag and drop event handlers
+  * Manage visual feedback and file selection
+  */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -24,6 +33,10 @@ export default function FileUpload() {
     setIsDragging(false);
   };
 
+  /**
+  * Handle file drop event
+  * Validates file size against 5MB limit
+  */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -37,6 +50,10 @@ export default function FileUpload() {
     }
   };
 
+  /**
+  * Helper function to validate file size and set state
+  * @param file The file to validate and set
+  */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.size <= 5 * 1024 * 1024) {
@@ -47,6 +64,10 @@ export default function FileUpload() {
     }
   };
 
+  /**
+  * Handle file upload to server
+  * Uploads file with user email and redirects to scan page
+  */
   const handleUpload = async () => {
     if (!selectedFile || !user?.email) return;
 
