@@ -433,3 +433,62 @@ The application is deployed on AWS using a secure and scalable architecture:
 - Private subnet accessible only through VPC
 - Public subnet exposed via internet gateway
 
+## Design Decisions & Future Roadmap 🚀
+
+<div align="center">
+
+### Why These Choices? 🤔
+
+</div>
+
+My journey in building SecureFile involved several key architectural and technical decisions that shaped the current implementation. Let me dive into the reasoning behind my choices and vision for the future.
+
+### Framework Selection 🔧
+I chose Next.js as my primary framework, leveraging its powerful features that combine frontend and backend capabilities in a single package. My decision was driven by its integrated approach to handling APIs and frontend components, eliminating the need for separate service implementations. The framework's flexibility in rendering strategies and excellent developer experience made it an ideal choice for rapid development.
+
+### Infrastructure Decisions 📊
+For my database needs, I opted for PostgreSQL hosted on AWS RDS rather than running it on EC2. This decision proved optimal as it offloaded database management responsibilities to AWS's managed service, providing automatic backups, better performance, and cost-effectiveness. The managed service approach allowed me to focus more on application development rather than database administration.
+
+### Development Experience 🐳
+I've containerized the entire application using Docker, making it environment-agnostic. Both development and production environments are containerized with different configurations, ensuring consistent behavior across various host machines and eliminating the "it works on my machine" syndrome.
+
+<div align="center">
+
+### Current Limitations 🚧
+
+</div>
+
+### Security & Authentication 🔓
+Currently, the application runs over HTTP instead of HTTPS. This limitation exists because I haven't implemented a domain for the Application Load Balancer, which is necessary for enabling HTTPS on the Elastic Network Interface attached to my EC2 instance. While the ENI has an Elastic IP and IPv4 resolvable DNS name, I chose this approach for demonstration simplicity.
+
+### Auth0 Integration Challenges 🔄
+My authentication journey has been interesting. I initially started with Next.js 15 but encountered breaking changes in dynamic route handling and cookie management. The stable release of Auth0 hadn't caught up with these changes, forcing me to revert to Next.js 14. While I initially implemented server-rendered pages with protected routing, production incompatibilities with Auth0 led me to adopt client-side authentication and rendering to maintain development velocity.
+
+<div align="center">
+
+### Future Improvements 🎯
+
+</div>
+
+### Development Pipeline 🔨
+A notable absence in my current setup is a CI/CD workflow. While GitHub Actions would be an excellent addition for automated testing and deployment, I had to balance implementation time against other critical features. This is a prime candidate for future enhancement.
+
+### Known Issues and Solutions 🐛
+My production Docker environment has some network interface issues that require debugging. Additionally, the API routes aren't fully protected due to Auth0 limitations with the latest Next.js versions. Once Auth0 releases updates compatible with recent Next.js changes, I can implement more robust security measures.
+
+### The Road Ahead 🚀
+My future improvements will focus on:
+- Implementing HTTPS security
+- Building a robust CI/CD pipeline
+- Enhancing authentication mechanisms
+- Fixing Docker networking issues
+- Adding load balancing capabilities
+- Implementing auto-scaling features
+
+<div align="center">
+
+### Final Thoughts 💭
+
+</div>
+
+As a developer, I've learned that development is often about making pragmatic choices and balancing ideal solutions against practical constraints. While my current implementation prioritizes functionality and user experience, I've left room for future enhancements. I've focused on delivering a solid foundation that I can iteratively improve.
