@@ -68,7 +68,7 @@ export class VirusTotalAPI {
   */
   async getAnalysis(analysisId: string) {
     try {
-      const response = await fetch(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, {
+      const response = await fetch(`${VIRUSTOTAL_API_URL}/${analysisId}`, {
         method: 'GET',
         headers: {
           'x-apikey': VIRUSTOTAL_API_KEY!,
