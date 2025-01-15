@@ -3,9 +3,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { virusTotal } from '../../../../../lib/services/virustotal';
 import { prisma } from '../../../../../lib/prisma';
 
+/**
+* API Configuration
+* force-dynamic: Disables caching for this route
+* maxDuration: Sets maximum execution time to 60 seconds
+*/
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+/**
+* File Upload API Endpoint
+* Handles file uploads for virus scanning
+* 
+* @route POST /api/protected/upload
+* @param request - Contains form data with file and email
+* 
+* @returns {Object} Response object
+* @returns {boolean} response.success - Indicates if upload was successful
+* @returns {string} response.scanId - ID of the created scan
+* @returns {string} response.message - Status message
+* 
+* @throws {400} - Missing email, missing file, or file size exceeds limit
+* @throws {404} - User not found
+* @throws {500} - Server error during processing
+*/
 export async function POST(request: NextRequest) {
   try {
     // Handle file upload

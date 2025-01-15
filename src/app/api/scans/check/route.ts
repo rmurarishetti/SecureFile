@@ -3,6 +3,23 @@ import { NextResponse } from 'next/server';
 import { virusTotal } from '../../../../../lib/services/virustotal';
 import { prisma } from '../../../../../lib/prisma';
 
+/**
+* Scan Status Check API Endpoint
+* Verifies scan ownership and retrieves current VirusTotal analysis status
+* 
+* @route GET /api/scans/check
+* @param vtScanId - VirusTotal scan identifier
+* @param dbId - Database scan identifier
+* @param email - User's email for verification
+* 
+* @returns {Object} Current scan status and analysis data
+* @returns {string} response.status - Current status (COMPLETED/PENDING)
+* @returns {Object} response.data - VirusTotal analysis data
+* 
+* @throws {400} - Missing required parameters
+* @throws {404} - Scan not found or unauthorized
+* @throws {500} - Server error during processing
+*/
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

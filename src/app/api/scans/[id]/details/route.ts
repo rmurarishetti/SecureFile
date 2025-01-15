@@ -3,6 +3,20 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../../lib/prisma';
 import { virusTotal } from '../../../../../../lib/services/virustotal';
 
+/**
+* Scan Details API Endpoint
+* Retrieves detailed scan information including VirusTotal analysis
+* 
+* @route GET /api/scans/[id]/details
+* @param id - Scan identifier from URL parameter
+* 
+* @returns {Object} Scan details and analysis results
+* @returns {Object} response.scan - Database scan record
+* @returns {Object|null} response.virusTotalData - VirusTotal analysis data if available
+* 
+* @throws {404} - Scan not found
+* @throws {500} - Server error during processing
+*/
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
