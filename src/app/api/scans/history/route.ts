@@ -2,6 +2,20 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../lib/prisma';
 
+/**
+* Scan History API Endpoint
+* Retrieves all scan records for a specified user
+* 
+* @route GET /api/scans/history
+* @param email - Query parameter for user identification
+* 
+* @returns {Object} Scan history data
+* @returns {Array} response.scans - Array of user's scan records
+* 
+* @throws {400} - Missing email parameter
+* @throws {404} - User not found
+* @throws {500} - Server error during processing
+*/
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
