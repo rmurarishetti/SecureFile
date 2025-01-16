@@ -1,6 +1,10 @@
 // components/dashboard/ScanResults.tsx
+"use client"
 import { AlertCircle, Loader2, Shield } from 'lucide-react';
 
+/**
+* Props interface for ScanResults component
+*/
 interface ScanResultsProps {
   fileName: string;
   fileSize: number;
@@ -8,12 +12,20 @@ interface ScanResultsProps {
   virusTotalData: any | null;
 }
 
+/**
+* Displays detailed virus scan results for a file
+* Shows loading states, errors, and comprehensive scan data
+*/
 export default function ScanResults({ 
   fileName, 
   fileSize, 
   status, 
   virusTotalData 
 }: ScanResultsProps) {
+  /**
+  * Loading state view
+  * Displayed during PENDING or SCANNING status
+  */
   if (status === 'PENDING' || status === 'SCANNING') {
     return (
       <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
@@ -40,6 +52,10 @@ export default function ScanResults({
     );
   }
 
+  /**
+  * Error state view
+  * Displayed when no VirusTotal data is available
+  */
   if (!virusTotalData) {
     return (
       <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
@@ -89,7 +105,10 @@ export default function ScanResults({
       engine: value.engine_name,
       result: value.result
     }));
-
+  
+  /**
+  * Success state view with complete scan results
+  */
   return (
     <div className="bg-black/50 backdrop-blur-md rounded-lg border border-gray-800">
       {/* Header */}
@@ -147,7 +166,7 @@ export default function ScanResults({
 
       {/* All Scan Details */}
       <div className="p-6">
-        <h3 className="text-lg font-medium text-white mb-4">All Security Vendors' Results</h3>
+        <h3 className="text-lg font-medium text-white mb-4">All Security Vendors &apos; Results</h3>
         <div className="grid grid-cols-2 gap-4">
           {Object.entries(virusTotalData.attributes.results).map(([key, value]: [string, any]) => (
             <div key={key} className="flex items-center justify-between p-3 bg-black/30 rounded-lg">
