@@ -37,7 +37,7 @@ export default function ScanStatusChecker({ scanId, dbId, status }: ScanStatusCh
         } catch (error) {
           console.error('Error checking scan status:', error);
         }
-      }); // Check every 20 seconds
+      }, 20000); // Check every 20 seconds
 
       return () => clearInterval(interval);
     }
